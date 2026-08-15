@@ -1,0 +1,19 @@
+[Unit]
+Description=mitmweb transparent outbound traffic monitor
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=mitmproxyuser
+Group=mitmproxyuser
+ExecStart=/usr/bin/mitmweb --mode transparent --showhost --listen-host 127.0.0.1 --listen-port 8082 --web-host 0.0.0.0 --web-port 8083 --no-web-open-browser --scripts /etc/mitmweb/autopatch.py --set block_global=false --set console_eventlog_verbosity=info --set save_stream_file=+/var/lib/mitmweb/flows.json
+Restart=on-failure
+RestartSec=3
+
+# 该用户需要读取被劫持连接的原始目标地址（SO_ORIGINAL_DST）
+AmbientCapabilities=CAP_NET_RAW CAP_NET_ADMIN
+CapabilityBoundingSet=CAP_NET_RAW CAP_NET_ADMIN
+NoNewPrivileges=no
+
+[Install]
+WantedBy=multi-user.target
